@@ -22,6 +22,18 @@ document.getElementById('rt-skip').onclick = () => {
   });
 };
 
+// JS 兜底：确保横屏时遮罩一定消失（部分浏览器 CSS 媒体查询响应慢）
+const rotateTip = document.getElementById('rotate-tip');
+const checkOrientation = () => {
+  if (!window.matchMedia('(orientation: portrait)').matches) {
+    rotateTip.style.display = 'none';
+  } else if (!document.body.classList.contains('force-portrait')) {
+    rotateTip.style.display = '';   // 清除内联样式，交还给 CSS 控制
+  }
+};
+checkOrientation();
+window.matchMedia('(orientation: portrait)').addEventListener('change', checkOrientation);
+
 document.addEventListener('keydown', e => {
   if (e.key.toLowerCase() === 'm' && document.activeElement.tagName !== 'INPUT') toggleMute();
 });
