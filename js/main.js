@@ -12,7 +12,17 @@ const toggleMute = () => {
   muteBtn.classList.toggle('muted', m);
 };
 muteBtn.onclick = e => { e.stopPropagation(); toggleMute(); };
-document.getElementById('rt-skip').onclick = () => document.body.classList.add('force-portrait');
+
+// 竖屏触屏自动启用竖屏布局；横屏切回时恢复横版比例
+const isTouchCoarse = window.matchMedia('(pointer: coarse)').matches;
+if (isTouchCoarse) {
+  const applyPortrait = () => {
+    document.body.classList.toggle('force-portrait', window.matchMedia('(orientation: portrait)').matches);
+  };
+  applyPortrait();
+  window.matchMedia('(orientation: portrait)').addEventListener('change', applyPortrait);
+}
+
 document.addEventListener('keydown', e => {
   if (e.key.toLowerCase() === 'm' && document.activeElement.tagName !== 'INPUT') toggleMute();
 });

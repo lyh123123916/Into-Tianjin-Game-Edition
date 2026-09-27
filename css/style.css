@@ -279,55 +279,62 @@ html, body {
 
 .hidden { opacity: 0; pointer-events: none; }
 
-/* ---- 手机竖屏引导：触屏设备竖着拿就盖一层「横过来」 ---- */
-#rotate-tip {
-  display: none;
-  position: fixed;
-  inset: 0;
-  z-index: 99;
-  background: #000;
-  color: #9aa0a6;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 4.5vh;
-  text-align: center;
-  font-size: clamp(14px, 2.4vh, 20px);
-  letter-spacing: 0.1em;
-}
-@media (orientation: portrait) and (pointer: coarse) {
-  body:not(.force-portrait) #rotate-tip { display: flex; }
-}
-#rt-phone {
-  width: min(42px, 5.6vh);
-  height: min(72px, 9.5vh);
-  border: 3px solid #9aa0a6;
-  border-radius: 6px;
-  animation: rt-turn 2.4s ease-in-out infinite;
-}
-@keyframes rt-turn {
-  0%, 15% { transform: rotate(0deg); }
-  55%, 85% { transform: rotate(-90deg); }
-  100% { transform: rotate(0deg); }
-}
-#rt-skip {
-  font-family: inherit;
-  background: none;
-  border: 1px solid #555;
-  color: #666;
-  font-size: 0.8em;
-  padding: 0.6em 1.4em;
-  cursor: pointer;
-}
-
-/* ---- 触屏适配：热区≥44px、点按即时响应、输入框≥16px 防 iOS 聚焦缩放 ---- */
+/* ---- 真·竖屏适配（A 方案）：上留图下留框，4:3 底图居中裁切，对话框占下半屏 ---- */
 @media (pointer: coarse) {
   html, body { overscroll-behavior: none; }        /* 掐掉下拉刷新/回弹 */
   #mute-btn { width: 44px; height: 44px; font-size: 20px; }
   .choice-btn { min-height: 44px; }
   #inputrow input { min-height: 44px; font-size: 16px; }
-  #rt-skip { min-height: 44px; }
   button { touch-action: manipulation; user-select: none; -webkit-tap-highlight-color: transparent; }
   #dialog, #prompt, .big-title, .big-sub { user-select: none; }
   #scratchbox canvas { touch-action: none; }       /* 刮刮乐不跟着页面滚动 */
+}
+
+/* ---- 真·竖屏适配（A 方案）：上留图下留框，4:3 底图居中裁切，对话框占下半屏 ---- */
+@media (orientation: portrait) and (pointer: coarse) {
+  body.force-portrait #game {
+    width: 100vw;
+    height: 100vh;
+    top: 0;
+    transform: none;
+  }
+  /* 像素场景保留上半部分（天空/建筑顶部），底部被对话框自然遮住 */
+  body.force-portrait #bg { object-position: center 30%; }
+
+  /* FX / scene canvas 只覆盖上半屏（与底图可视区对齐），避免 4:3 内容被拉伸到 9:16 */
+  body.force-portrait #stage,
+  body.force-portrait #fx,
+  body.force-portrait #scanlines {
+    height: 58%;
+    bottom: auto;
+  }
+
+  /* 对话框 + 选项占据下半屏，不再贴底而是垂直居中于下半区 */
+  body.force-portrait #overlay:not(.center) {
+    justify-content: flex-end;
+    padding: 4vmin 5vmin calc(env(safe-area-inset-bottom, 0px) + 5vmin);
+    gap: 2vmin;
+  }
+  body.force-portrait #dialog { width: 92%; max-width: none; font-size: clamp(14px, 3.6vmin, 18px); }
+  body.force-portrait #prompt { width: 92%; max-width: none; }
+  body.force-portrait #choices { width: 92%; max-width: none; grid-template-columns: 1fr; gap: 1.8vmin; }
+  body.force-portrait #choices.one-col { width: 92%; max-width: none; }
+  body.force-portrait .choice-btn { font-size: clamp(14px, 3.6vmin, 18px); padding: 0.8em 1em; }
+  body.force-portrait #inputrow { width: 92%; flex-wrap: wrap; }
+  body.force-portrait #inputrow input { flex: 1; min-width: 0; width: auto; font-size: 16px; }
+
+  /* 演出屏（标题/QTE/刮刮乐/结算）在竖屏也保持居中，但内容宽度放宽 */
+  body.force-portrait #overlay.center #stamina-box,
+  body.force-portrait #overlay.center #summary { width: 92%; max-width: none; }
+  body.force-portrait #scratchbox { width: min(88vw, 360px); }
+
+  /* HUD 顶栏微调：避免被状态栏遮挡 */
+  body.force-portrait #hud {
+    top: calc(env(safe-area-inset-top, 0px) + 6px);
+    font-size: clamp(11px, 2.8vmin, 14px);
+  }
+
+  /* 成就 toast / 幸运值飘字位置随竖屏调整 */
+  body.force-portrait #toast { top: calc(env(safe-area-inset-top, 0px) + 12%); }
+  body.force-portrait #float-luck { top: 42%; }
 }
