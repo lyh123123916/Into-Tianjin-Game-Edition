@@ -279,7 +279,49 @@ html, body {
 
 .hidden { opacity: 0; pointer-events: none; }
 
-/* ---- 真·竖屏适配（A 方案）：上留图下留框，4:3 底图居中裁切，对话框占下半屏 ---- */
+/* ---- 手机竖屏引导：触屏设备竖着拿就盖一层「横过来」 ---- */
+#rotate-tip {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 99;
+  background: #000;
+  color: #9aa0a6;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4.5vh;
+  text-align: center;
+  font-size: clamp(14px, 2.4vh, 20px);
+  letter-spacing: 0.1em;
+}
+@media (orientation: portrait) and (pointer: coarse) {
+  body:not(.force-portrait) #rotate-tip { display: flex; }
+}
+#rt-phone {
+  width: min(42px, 5.6vh);
+  height: min(72px, 9.5vh);
+  border: 3px solid #9aa0a6;
+  border-radius: 6px;
+  animation: rt-turn 2.4s ease-in-out infinite;
+}
+@keyframes rt-turn {
+  0%, 15% { transform: rotate(0deg); }
+  55%, 85% { transform: rotate(-90deg); }
+  100% { transform: rotate(0deg); }
+}
+#rt-skip {
+  font-family: inherit;
+  background: none;
+  border: 1px solid #555;
+  color: #666;
+  font-size: 0.8em;
+  padding: 0.6em 1.4em;
+  cursor: pointer;
+  min-height: 44px;
+}
+
+/* ---- 触屏适配：热区≥44px、点按即时响应、输入框≥16px 防 iOS 聚焦缩放 ---- */
 @media (pointer: coarse) {
   html, body { overscroll-behavior: none; }        /* 掐掉下拉刷新/回弹 */
   #mute-btn { width: 44px; height: 44px; font-size: 20px; }
