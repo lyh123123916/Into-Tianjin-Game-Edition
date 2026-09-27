@@ -1,0 +1,333 @@
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html, body {
+  background: #000;
+  height: 100%;
+  overflow: hidden;
+  font-family: "SimSun", "宋体", serif;
+  -webkit-font-smoothing: none;
+}
+
+#game {
+  position: relative;
+  width: min(100vw, calc(100vh * 4 / 3));
+  height: min(100vh, calc(100vw * 3 / 4));
+  margin: auto;
+  top: 50%;
+  transform: translateY(-50%);
+  background: #000;
+  overflow: hidden;
+}
+
+#stage {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+#stage.shake { animation: shake .3s steps(2) 3; }
+@keyframes shake {
+  25% { transform: translate(2px, -1px); }
+  75% { transform: translate(-2px, 1px); }
+}
+
+#fx {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  image-rendering: pixelated;
+  z-index: 2;
+  pointer-events: none;
+}
+
+#bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  image-rendering: pixelated;
+  z-index: 1;
+  opacity: 0;
+  transition: opacity .35s;
+}
+#bg.show { opacity: 1; }
+/* 宽景全景图：横向超出画面，由 FX 相机横移驱动 */
+#bg.wide { width: 160%; }
+
+#scene {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  image-rendering: pixelated;
+  z-index: 0;
+}
+
+#scanlines {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent 0px, transparent 3px,
+    rgba(0,0,0,0.18) 3px, rgba(0,0,0,0.18) 4px
+  );
+  z-index: 5;
+}
+
+/* ---- HUD ---- */
+#hud {
+  position: absolute;
+  top: 8px; left: 10px; right: 10px;
+  display: flex;
+  gap: 14px;
+  color: #9aa0a6;
+  font-size: clamp(10px, 1.6vmin, 14px);
+  z-index: 10;
+  text-shadow: 1px 1px 0 #000;
+}
+#hud-luck { color: #58d68d; }
+#hud-ach  { color: #e74c3c; }
+#mute-btn {
+  margin-left: auto;
+  font-family: inherit;
+  background: none;
+  border: 2px solid #555;
+  color: #9aa0a6;
+  width: 26px; height: 26px;
+  font-size: 15px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0;
+}
+#mute-btn:hover { border-color: #9aa0a6; color: #fff; }
+#mute-btn.muted { color: #e02020; border-color: #e02020; text-decoration: line-through; }
+
+/* ---- 灰框面板（视频同款） ---- */
+.panel {
+  background: #8f928e;
+  color: #111;
+  border: 2px solid #000;
+  box-shadow: 4px 4px 0 rgba(0,0,0,0.6);
+  padding: 10px 16px;
+  font-size: clamp(13px, 2.4vmin, 20px);
+  line-height: 1.7;
+}
+
+#overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 8;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;          /* 旁白/选项沉底，上半屏留给场景 */
+  gap: 2.5vmin;
+  padding: 6vmin 6vmin 7vmin;
+}
+#overlay.center { justify-content: center; }   /* 演出屏（标题/结算/小游戏）仍居中 */
+
+/* 旁白打字机 */
+#dialog {
+  width: min(80%, 720px);
+  min-height: 3.2em;
+  cursor: pointer;
+}
+#dialog .caret { animation: blink .8s steps(1) infinite; }
+@keyframes blink { 50% { opacity: 0; } }
+
+/* 大标题 */
+.big-title {
+  color: #eee;
+  font-size: clamp(28px, 7vmin, 60px);
+  letter-spacing: 0.35em;
+  text-shadow: 3px 3px 0 #000;
+}
+.big-sub {
+  color: #777;
+  font-size: clamp(11px, 2vmin, 16px);
+  animation: blink 1.2s steps(1) infinite;
+}
+
+/* 选项 */
+#prompt { width: min(80%, 640px); text-align: center; }
+#warn {
+  color: #e02020;
+  font-size: clamp(11px, 2vmin, 16px);
+  text-shadow: 1px 1px 0 #000;
+}
+#choices {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2vmin 3vmin;
+  width: min(72%, 560px);
+}
+#choices.one-col { grid-template-columns: 1fr; width: min(56%, 420px); }
+.choice-btn {
+  font-family: inherit;
+  background: #8f928e;
+  border: 2px solid #000;
+  box-shadow: 3px 3px 0 rgba(0,0,0,0.6);
+  color: #111;
+  font-size: clamp(13px, 2.3vmin, 19px);
+  padding: 0.7em 1em;
+  cursor: pointer;
+}
+.choice-btn:hover { background: #b5b8b4; }
+.choice-btn:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 rgba(0,0,0,0.6); }
+.choice-btn.danger { color: #c0392b; }
+.choice-btn.money  { color: #1a7f37; }
+
+/* 输入框 */
+#inputrow { display: flex; gap: 1.5vmin; }
+#inputrow input {
+  font-family: inherit;
+  background: #ddd;
+  border: 2px solid #000;
+  padding: 0.5em 0.8em;
+  font-size: clamp(13px, 2.3vmin, 19px);
+  width: 16em;
+  outline: none;
+}
+#inputrow input::placeholder { color: #999; }
+
+/* 体力小游戏：双条 */
+#stamina-box { width: min(80%, 640px); display: flex; flex-direction: column; gap: 1.6vmin; align-items: stretch; }
+#scratchbox { position: relative; width: 420px; max-width: 90%; aspect-ratio: 192 / 120; margin: 0 auto; }
+#scratchbox canvas { position: absolute; inset: 0; width: 100%; height: 100%; image-rendering: pixelated; cursor: crosshair; }
+.bar-hint {
+  color: #ffd76a;
+  font-size: clamp(10px, 1.8vmin, 14px);
+  text-align: center;
+  text-shadow: 1px 1px 0 #000;
+}
+.bar-row { display: flex; align-items: center; gap: 1.5vmin; }
+.bar-label {
+  color: #ddd;
+  font-size: clamp(11px, 2vmin, 16px);
+  width: 3.5em;
+  text-align: right;
+  text-shadow: 1px 1px 0 #000;
+}
+.bar-track {
+  flex: 1; height: 20px;
+  background: #222; border: 2px solid #000;
+  box-shadow: 3px 3px 0 rgba(0,0,0,0.6);
+  position: relative;
+}
+.bar-fill { height: 100%; width: 100%; transition: width .12s linear; }
+.bar-fill.stamina { background: #58d68d; }
+.bar-track.hurt .bar-fill.stamina { background: #e02020; }
+.bar-fill.progress { background: #ffd76a; width: 0; }
+.bar-goal {
+  position: absolute; top: -6px; bottom: -6px; left: 100%;
+  width: 3px; background: #e74c3c;
+}
+.bar-goal::after {
+  content: '餐馆';
+  position: absolute; top: -1.5em; left: -1.2em;
+  color: #e74c3c; font-size: clamp(9px, 1.6vmin, 13px);
+  text-shadow: 1px 1px 0 #000;
+}
+.bar-goal.mid { left: 50%; background: #ffd76a; }
+.bar-goal.mid::after { content: '小馆'; color: #ffd76a; }
+
+/* 结算面板 */
+#summary { width: min(80%, 640px); text-align: center; }
+#summary h2 { margin-bottom: 0.6em; font-size: clamp(16px, 3vmin, 26px); }
+#summary .stat { margin: 0.25em 0; }
+#summary .ach-list { font-size: clamp(11px, 1.9vmin, 15px); color: #333; margin-top: 0.8em; line-height: 1.9; }
+
+/* 成就 toast（视频同款红条+勾）：贴顶弹出，不挡底部对话框 */
+#toast {
+  position: absolute;
+  left: 50%; top: 10%;
+  transform: translateX(-50%);
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  z-index: 20;
+  transition: opacity .4s;
+}
+#toast-icon {
+  width: 44px; height: 44px;
+  border: 3px solid #fff; border-radius: 50%;
+  color: #fff; background: #111;
+  font-size: 26px; line-height: 38px; text-align: center;
+}
+#toast-bar {
+  background: linear-gradient(#e02020, #8f1212);
+  color: #fff;
+  padding: 6px 26px;
+  font-size: clamp(12px, 2.2vmin, 18px);
+  border-radius: 3px;
+  box-shadow: 0 0 12px rgba(224,32,32,0.55);
+  white-space: nowrap;
+}
+
+/* 幸运值飘字（视频同款绿字） */
+#float-luck {
+  position: absolute;
+  left: 50%; top: 58%;
+  transform: translateX(-50%);
+  color: #58d68d;
+  font-size: clamp(16px, 3.4vmin, 28px);
+  text-shadow: 2px 2px 0 #000;
+  z-index: 20;
+  transition: all 1.2s ease-out;
+}
+#float-luck.bad { color: #e02020; }
+
+.hidden { opacity: 0; pointer-events: none; }
+
+/* ---- 手机竖屏引导：触屏设备竖着拿就盖一层「横过来」 ---- */
+#rotate-tip {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 99;
+  background: #000;
+  color: #9aa0a6;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4.5vh;
+  text-align: center;
+  font-size: clamp(14px, 2.4vh, 20px);
+  letter-spacing: 0.1em;
+}
+@media (orientation: portrait) and (pointer: coarse) {
+  body:not(.force-portrait) #rotate-tip { display: flex; }
+}
+#rt-phone {
+  width: min(42px, 5.6vh);
+  height: min(72px, 9.5vh);
+  border: 3px solid #9aa0a6;
+  border-radius: 6px;
+  animation: rt-turn 2.4s ease-in-out infinite;
+}
+@keyframes rt-turn {
+  0%, 15% { transform: rotate(0deg); }
+  55%, 85% { transform: rotate(-90deg); }
+  100% { transform: rotate(0deg); }
+}
+#rt-skip {
+  font-family: inherit;
+  background: none;
+  border: 1px solid #555;
+  color: #666;
+  font-size: 0.8em;
+  padding: 0.6em 1.4em;
+  cursor: pointer;
+}
+
+/* ---- 触屏适配：热区≥44px、点按即时响应、输入框≥16px 防 iOS 聚焦缩放 ---- */
+@media (pointer: coarse) {
+  html, body { overscroll-behavior: none; }        /* 掐掉下拉刷新/回弹 */
+  #mute-btn { width: 44px; height: 44px; font-size: 20px; }
+  .choice-btn { min-height: 44px; }
+  #inputrow input { min-height: 44px; font-size: 16px; }
+  #rt-skip { min-height: 44px; }
+  button { touch-action: manipulation; user-select: none; -webkit-tap-highlight-color: transparent; }
+  #dialog, #prompt, .big-title, .big-sub { user-select: none; }
+  #scratchbox canvas { touch-action: none; }       /* 刮刮乐不跟着页面滚动 */
+}

@@ -1,0 +1,18 @@
+# 开发过程素材（本地保留，不进仓库）
+_frames/
+_wmcheck/
+vibe_images/
+assets/_未使用备份/
+
+# 临时抓取的网页存档
+ag1.html
+ts1.html
+
+# 系统 / 编辑器
+.DS_Store
+Thumbs.db
+desktop.ini
+*.log
+
+# 本地服务
+node_modules/

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>走进天津</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div id="game">
+  <div id="stage">
+    <img id="bg" alt="" draggable="false">
+    <canvas id="scene" width="192" height="144"></canvas>
+  </div>
+  <canvas id="fx" width="192" height="144"></canvas>
+  <div id="scanlines"></div>
+
+  <div id="hud">
+    <span id="hud-name">游客</span>
+    <span id="hud-luck">幸运值 0</span>
+    <span id="hud-ach">成就 0/15</span>
+    <button id="mute-btn" type="button" title="静音 / 取消静音（M）">&#9835;</button>
+  </div>
+
+  <div id="overlay"></div>
+
+  <div id="toast" class="hidden">
+    <div id="toast-icon">&#10003;</div>
+    <div id="toast-bar">恭喜您解锁新成就：<span id="toast-name"></span></div>
+  </div>
+  <div id="float-luck" class="hidden"></div>
+</div>
+
+<!-- 手机竖屏引导（仅触屏设备竖屏时出现） -->
+<div id="rotate-tip">
+  <div id="rt-phone"></div>
+  <div>请横过手机，体验《走进天津》</div>
+  <button id="rt-skip" type="button">坚持竖屏玩</button>
+</div>
+
+<script src="js/art.js"></script>
+<script src="js/fx.js"></script>
+<script src="js/audio.js"></script>
+<script src="js/engine.js"></script>
+<script src="js/story.js"></script>
+<script src="js/story2.js"></script>
+<script src="js/story3.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
